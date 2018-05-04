@@ -1,20 +1,22 @@
-#include "vectormatrix.h"
+#include "matrix.h"
 #include <iostream>
 
-VectorMatrix::VectorMatrix(unsigned int m, unsigned int n)
+template<class T>
+Matrix<T>::Matrix(unsigned int m, unsigned int n)
 {
     this->m = m;
     this->n = n;
 
 
-    this->matrix = new std::vector<std::vector<int>*>(m);
+	this->matrix = new std::vector<std::vector<T>*>(m);
     for (unsigned int i = 0; i < m; i++)
 	{
-		matrix->at(m) = new std::vector<int>(n, -1);
+		matrix->at(i) = new std::vector<T>(n);
     }
 }
 
-VectorMatrix::~VectorMatrix()
+template<class T>
+Matrix<T>::~Matrix()
 {
     for (unsigned int i = 0; i < matrix->size(); i++)
     {
@@ -23,12 +25,14 @@ VectorMatrix::~VectorMatrix()
     delete matrix;
 }
 
-void VectorMatrix::setAt(unsigned int i, unsigned int j, const int index)
+template<class T>
+void Matrix<T>::setAt(unsigned int i, unsigned int j, const T value)
 {
-    matrix->at(i)->at(j) = index;
+	matrix->at(i)->at(j) = value;
 }
 
-void VectorMatrix::Print()
+template<class T>
+void Matrix<T>::Print()
 {
     for (unsigned int i = 0; i < this->m; i++)
     {
@@ -39,3 +43,7 @@ void VectorMatrix::Print()
         std::cout << std::endl;
     }
 }
+
+template class Matrix<unsigned int>;
+template class Matrix<double>;
+

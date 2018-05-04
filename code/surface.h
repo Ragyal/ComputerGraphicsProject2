@@ -4,13 +4,13 @@
 #include <vector>
 #include <QVector3D>
 
-#include <vectormatrix.h>
+#include <matrix.h>
 
 
 class Surface
 {
 public:
-    Surface(int resolution = 20);
+	Surface(std::string fileName, int resolution = 20);
     ~Surface();
 
     static std::vector<QVector3D*>* Points;
@@ -19,11 +19,15 @@ public:
 
 private:
     int resolution;
-    VectorMatrix* bezierPoints;
+	Matrix<unsigned int>* bezierPoints;		// type int index		m rows and n columns		OR m+1 rows and n+1 columns
 
-    VectorMatrix* bersteinSamples;
-    VectorMatrix* surface;
+	Matrix<double>* bersteinSamplesM;		// type double [0, 1]	m rows resolution+1 columns OR m+1 rows resolution+1 columns
+	Matrix<double>* bersteinSamplesN;		// type double [0, 1]	n rows resolution+1 columns OR n+1 rows resolution+1 columns
 
+	Matrix<unsigned int>* surface;			// type int index		resolution+1 rows resolution+1 columns
+
+	void readFile(std::string fileName);
+	void precalcBersteinPolynomials();
 };
 
 #endif // SURFACE_H

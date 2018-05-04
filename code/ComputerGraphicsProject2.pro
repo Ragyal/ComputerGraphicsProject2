@@ -25,7 +25,8 @@ SOURCES += main.cpp\
     quad.cpp \
     mesh.cpp \
     surface.cpp \
-    vectormatrix.cpp
+    vectormatrix.cpp \
+    matrix.cpp
 
 HEADERS  += mainwindow.h \
     oglwidget.h \
@@ -33,7 +34,8 @@ HEADERS  += mainwindow.h \
     quad.h \
     mesh.h \
     surface.h \
-    vectormatrix.h
+    vectormatrix.h \
+    matrix.h
 
 FORMS += mainwindow.ui
 

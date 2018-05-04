@@ -10,7 +10,7 @@
 using namespace std;
 
 
-static string fileName = "cube.obj";
+static string fileName = "example.txt";
 static float scale = 6.0f;
 
 static int resolution = 20;
@@ -89,8 +89,7 @@ void SetMaterialColor(int side, float r, float g, float b)
 
 OGLWidget::OGLWidget(QWidget *parent) : QOpenGLWidget(parent)   // constructor
 {
-    this->surface = new Surface(resolution);
-    this->surface->Print();
+	this->surface = new Surface(fileName, resolution);
 
     // Setup the animation timer to fire every x msec
     animtimer = new QTimer(this);
