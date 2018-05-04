@@ -1,12 +1,13 @@
 #include "surface.h"
 
-#include<iostream>
-#include<fstream>
+#include <iostream>
+#include <fstream>
+#include <math.h>
 
 
 std::vector<QVector3D*>* Surface::Points = new std::vector<QVector3D*>();
 
-Surface::Surface(std::string fileName, int resolution)
+Surface::Surface(std::string fileName, unsigned int resolution)
 {
     this->resolution = resolution;
 
@@ -17,6 +18,8 @@ Surface::Surface(std::string fileName, int resolution)
 Surface::~Surface()
 {
     delete this->bezierPoints;
+	delete this->bersteinSamplesM;
+	delete this->bersteinSamplesN;
 
     for (unsigned long i = 0; i < Points->size(); i++)
     {
@@ -90,7 +93,57 @@ void Surface::readFile(std::string fileName)
 	file.close();
 }
 
+/// Source: https://ideone.com/aDJXNO   --- NOCH NICHT GETESTET!!!   <-- FALLS FEHLER AUFTRETEN
+unsigned int nChoosek(unsigned int n, unsigned int k)
+{
+	if (k > n)
+		return 0;
+	if (k * 2 > n)
+		k = n-k;
+	if (k == 0)
+		return 1;
+
+	int result = n;
+	for (unsigned int i = 2; i <= k; ++i)
+	{
+		result *= (n-i+1);
+		result /= i;
+	}
+	return result;
+}
+
 void Surface::precalcBersteinPolynomials()
 {
+	unsigned int m = this->bezierPoints->getM();
+	unsigned int n = this->bezierPoints->getN();
 
+	this->bersteinSamplesM = new Matrix<double>(m, resolution+1);
+	double val;
+
+	for (unsigned int i = 0; i < m; i++)
+	{
+		for (unsigned int t = 0; t < resolution+1; t++)
+		{
+			val = nChoosek(m, i) * pow(t, i) * pow((1.0f - t), (m-i));
+			this->bersteinSamplesM->setAt(i, t, val);
+		}
+	}
+
+	if (m == n)
+	{
+		this->bersteinSamplesN = this->bersteinSamplesM;
+	}
+	else
+	{
+		this->bersteinSamplesN = new Matrix<double>(n, resolution+1);
+
+		for (unsigned int j = 0; j < n; j++)
+		{
+			for (unsigned int t = 0; t < resolution+1; t++)
+			{
+				val = nChoosek(n, j) * pow(t, j) * pow((1.0f - t), (n-j));
+				this->bersteinSamplesN->setAt(j, t, val);
+			}
+		}
+	}
 }

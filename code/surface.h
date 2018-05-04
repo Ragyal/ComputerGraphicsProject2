@@ -10,7 +10,7 @@
 class Surface
 {
 public:
-	Surface(std::string fileName, int resolution = 20);
+	Surface(std::string fileName, unsigned int resolution = 20);
     ~Surface();
 
     static std::vector<QVector3D*>* Points;
@@ -18,7 +18,7 @@ public:
     void Print(bool printBezierPoints = true);
 
 private:
-    int resolution;
+	unsigned int resolution;
 	Matrix<unsigned int>* bezierPoints;		// type int index		m rows and n columns		OR m+1 rows and n+1 columns
 
 	Matrix<double>* bersteinSamplesM;		// type double [0, 1]	m rows resolution+1 columns OR m+1 rows resolution+1 columns
