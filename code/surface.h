@@ -16,6 +16,8 @@ public:
     static std::vector<QVector3D*>* Points;
 
     void Print(bool printBezierPoints = true);
+	void Draw(bool drawSurface = true, bool drawWireframe = true);
+	void DrawControlMesh();
 
 private:
 	unsigned int resolution;
@@ -28,6 +30,7 @@ private:
 
 	void readFile(std::string fileName);
 	void precalcBersteinPolynomials();
+	void calcSurface();
 };
 
 #endif // SURFACE_H

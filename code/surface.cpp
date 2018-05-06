@@ -1,5 +1,6 @@
 #include "surface.h"
 
+#include <QOpenGLFunctions>
 #include <iostream>
 #include <fstream>
 #include <math.h>
@@ -13,6 +14,7 @@ Surface::Surface(std::string fileName, unsigned int resolution)
 
 	readFile(fileName);
 	precalcBersteinPolynomials();
+	calcSurface();
 }
 
 Surface::~Surface()
@@ -20,6 +22,7 @@ Surface::~Surface()
     delete this->bezierPoints;
 	delete this->bersteinSamplesM;
 	delete this->bersteinSamplesN;
+	delete this->surface;
 
     for (unsigned long i = 0; i < Points->size(); i++)
     {
@@ -32,6 +35,104 @@ void Surface::Print(bool printBezierPoints)
 {
     if (printBezierPoints)
 		this->bezierPoints->Print();
+}
+
+void Surface::Draw(bool drawSurface, bool drawWireframe)
+{
+	unsigned int m = this->surface->getM();
+	unsigned int n = this->surface->getN();
+
+	QVector3D *posA, *posB, *posC, *posD;
+	QVector3D rVa, rVb, normalV;
+
+	for (unsigned int i = 0; i < m-1; i++)
+	{
+		for (unsigned int j = 0; j < n-1; j++)
+		{
+			posA = Points->at(surface->getAt(i, j));
+			posB = Points->at(surface->getAt(i+1, j));
+			posC = Points->at(surface->getAt(i+1, j+1));
+			posD = Points->at(surface->getAt(i, j+1));
+
+			rVa = *posC - *posA;
+			rVb = *posD - *posB;
+			normalV = QVector3D::normal(rVa, rVb);
+
+			if (drawSurface)
+			{
+				glBegin(GL_QUADS);
+
+				glNormal3f(normalV.x(), normalV.y(), normalV.z());
+
+				glVertex3f(posA->x(), posA->y(), posA->z());
+				glVertex3f(posB->x(), posB->y(), posB->z());
+				glVertex3f(posC->x(), posC->y(), posC->z());
+				glVertex3f(posD->x(), posD->y(), posD->z());
+
+				glEnd();
+			}
+
+			if (drawWireframe)
+			{
+				glDisable(GL_LIGHTING);
+				glBegin(GL_LINES);
+				glColor3f(0.0, 0.0, 0.0);
+
+				glVertex3f(posA->x(), posA->y(), posA->z());
+				glVertex3f(posB->x(), posB->y(), posB->z());
+
+				glVertex3f(posB->x(), posB->y(), posB->z());
+				glVertex3f(posC->x(), posC->y(), posC->z());
+
+				glVertex3f(posC->x(), posC->y(), posC->z());
+				glVertex3f(posD->x(), posD->y(), posD->z());
+
+				glVertex3f(posD->x(), posD->y(), posD->z());
+				glVertex3f(posA->x(), posA->y(), posA->z());
+
+				glEnd();
+				glEnable(GL_LIGHTING);
+			}
+		}
+	}
+}
+
+void Surface::DrawControlMesh()
+{
+	unsigned int m = this->bezierPoints->getM();
+	unsigned int n = this->bezierPoints->getN();
+
+	QVector3D *posA, *posB, *posC, *posD;
+
+	for (unsigned int i = 0; i < m-1; i++)
+	{
+		for (unsigned int j = 0; j < n-1; j++)
+		{
+			posA = Points->at(bezierPoints->getAt(i, j));
+			posB = Points->at(bezierPoints->getAt(i+1, j));
+			posC = Points->at(bezierPoints->getAt(i+1, j+1));
+			posD = Points->at(bezierPoints->getAt(i, j+1));
+
+			glDisable(GL_LIGHTING);
+			glBegin(GL_LINES);
+			glColor3f(0.0, 0.0, 0.0);
+
+			glVertex3f(posA->x(), posA->y(), posA->z());
+			glVertex3f(posB->x(), posB->y(), posB->z());
+
+			glVertex3f(posB->x(), posB->y(), posB->z());
+			glVertex3f(posC->x(), posC->y(), posC->z());
+
+			glVertex3f(posC->x(), posC->y(), posC->z());
+			glVertex3f(posD->x(), posD->y(), posD->z());
+
+			glVertex3f(posD->x(), posD->y(), posD->z());
+			glVertex3f(posA->x(), posA->y(), posA->z());
+
+			glEnd();
+			glEnable(GL_LIGHTING);
+		}
+	}
 }
 
 void Surface::readFile(std::string fileName)
@@ -116,6 +217,7 @@ void Surface::precalcBersteinPolynomials()
 {
 	unsigned int m = this->bezierPoints->getM();
 	unsigned int n = this->bezierPoints->getN();
+	double stepSize = 1.0f/resolution;
 
 	this->bersteinSamplesM = new Matrix<double>(m, resolution+1);
 	double val;
@@ -124,7 +226,7 @@ void Surface::precalcBersteinPolynomials()
 	{
 		for (unsigned int t = 0; t < resolution+1; t++)
 		{
-			val = nChoosek(m, i) * pow(t, i) * pow((1.0f - t), (m-i));
+			val = nChoosek(m, i) * pow(t*stepSize, i) * pow((1.0f - t*stepSize), (m-i));
 			this->bersteinSamplesM->setAt(i, t, val);
 		}
 	}
@@ -141,9 +243,44 @@ void Surface::precalcBersteinPolynomials()
 		{
 			for (unsigned int t = 0; t < resolution+1; t++)
 			{
-				val = nChoosek(n, j) * pow(t, j) * pow((1.0f - t), (n-j));
+				val = nChoosek(n, j) * pow(t*stepSize, j) * pow((1.0f - t*stepSize), (n-j));
 				this->bersteinSamplesN->setAt(j, t, val);
 			}
+		}
+	}
+}
+
+void Surface::calcSurface()
+{
+	this->surface = new Matrix<unsigned int>(resolution+1, resolution+1);
+
+	unsigned int m = this->bezierPoints->getM();
+	unsigned int n = this->bezierPoints->getN();
+
+	QVector3D *pos, *Bij;
+	double M, N;
+	unsigned int index;
+
+	for (unsigned int s = 0; s < resolution+1; s++)
+	{
+		for (unsigned int t = 0; t < resolution+1; t++)
+		{
+			pos = new QVector3D();
+
+			for (unsigned int i = 0; i < m; i++)
+			{
+				for (unsigned int j = 0; j < n; j++)
+				{
+					Bij = Points->at(this->bezierPoints->getAt(i, j));
+					M = this->bersteinSamplesM->getAt(i, s);
+					N = this->bersteinSamplesN->getAt(j, t);
+					*pos += *Bij * M * N;
+				}
+			}
+
+			index = Points->size();
+			Points->push_back(pos);
+			surface->setAt(s, t, index);
 		}
 	}
 }

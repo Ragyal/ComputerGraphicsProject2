@@ -11,14 +11,14 @@ using namespace std;
 
 
 static string fileName = "example.txt";
-static float scale = 6.0f;
+static float scale = 4.0f;
 
-static int resolution = 20;
+static int resolution = 4;
 static bool drawSurface = true;
 static bool drawWireframe = false;
 
-static bool doRotation = false;
-static double alpha = 45.0;         // rotation angle
+static bool doRotation = true;
+static double alpha = 0;         // rotation angle
 
 
 // initialize Open GL lighting and projection matrix
@@ -142,6 +142,8 @@ void OGLWidget::paintGL()       // draw everything, to be called repeatedly
 
     // draw a cylinder with default resolution
     /// mesh->DrawMesh(drawSurface, drawWireframe);
+	surface->Draw(drawSurface, drawWireframe);
+	surface->DrawControlMesh();
 
     // make it appear (before this, it's hidden in the rear buffer)
     glFlush();
