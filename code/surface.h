@@ -15,9 +15,12 @@ public:
 
     static std::vector<QVector3D*>* Points;
 
-    void Print(bool printBezierPoints = true);
-	void Draw(bool drawSurface = true, bool drawWireframe = true);
-	void DrawControlMesh();
+	void Print(bool printBezierPoints = true) const;
+	void Draw(bool drawSurface = true, bool drawWireframe = true) const;
+	void DrawControlMesh() const;
+
+	unsigned int GetDegreeM() const { return this->bersteinSamplesM->getM()-1; }
+	unsigned int GetDegreeN() const { return this->bersteinSamplesN->getM()-1; }
 
 private:
 	unsigned int resolution;

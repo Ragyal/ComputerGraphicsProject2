@@ -26,18 +26,18 @@ Surface::~Surface()
 
     for (unsigned long i = 0; i < Points->size(); i++)
     {
-        delete Points->at(i);
+		delete Points->at(i);
     }
     delete Points;
 }
 
-void Surface::Print(bool printBezierPoints)
+void Surface::Print(bool printBezierPoints) const
 {
     if (printBezierPoints)
 		this->bezierPoints->Print();
 }
 
-void Surface::Draw(bool drawSurface, bool drawWireframe)
+void Surface::Draw(bool drawSurface, bool drawWireframe) const
 {
 	unsigned int m = this->surface->getM();
 	unsigned int n = this->surface->getN();
@@ -97,7 +97,7 @@ void Surface::Draw(bool drawSurface, bool drawWireframe)
 	}
 }
 
-void Surface::DrawControlMesh()
+void Surface::DrawControlMesh() const
 {
 	unsigned int m = this->bezierPoints->getM();
 	unsigned int n = this->bezierPoints->getN();
@@ -138,7 +138,7 @@ void Surface::DrawControlMesh()
 void Surface::readFile(std::string fileName)
 {
 	std::string fname("D:/Projekte/Qt/ComputerGraphicsProject2/data/" + fileName);				/// Windows OVE
-	//string fname("/Users/ove/Documents/Qt/ComputerGraphicsProject2/data/" + fileName);	/// MAC OVE
+	//std::string fname("/Users/ove/Documents/Qt/ComputerGraphicsProject2/data/" + fileName);	/// MAC OVE
 
 	std::ifstream file(fname.c_str());
 	if (!file)
@@ -226,7 +226,7 @@ void Surface::precalcBersteinPolynomials()
 	{
 		for (unsigned int t = 0; t < resolution+1; t++)
 		{
-			val = nChoosek(m, i) * pow(t*stepSize, i) * pow((1.0f - t*stepSize), (m-i));
+			val = nChoosek(this->GetDegreeM(), i) * pow(t*stepSize, i) * pow((1.0f - t*stepSize), (this->GetDegreeM()-i));
 			this->bersteinSamplesM->setAt(i, t, val);
 		}
 	}
@@ -243,7 +243,7 @@ void Surface::precalcBersteinPolynomials()
 		{
 			for (unsigned int t = 0; t < resolution+1; t++)
 			{
-				val = nChoosek(n, j) * pow(t*stepSize, j) * pow((1.0f - t*stepSize), (n-j));
+				val = nChoosek(this->GetDegreeN(), j) * pow(t*stepSize, j) * pow((1.0f - t*stepSize), (this->GetDegreeN()-j));
 				this->bersteinSamplesN->setAt(j, t, val);
 			}
 		}
@@ -254,8 +254,8 @@ void Surface::calcSurface()
 {
 	this->surface = new Matrix<unsigned int>(resolution+1, resolution+1);
 
-	unsigned int m = this->bezierPoints->getM();
-	unsigned int n = this->bezierPoints->getN();
+	unsigned int m = this->GetDegreeM();
+	unsigned int n = this->GetDegreeN();
 
 	QVector3D *pos, *Bij;
 	double M, N;
@@ -267,9 +267,9 @@ void Surface::calcSurface()
 		{
 			pos = new QVector3D();
 
-			for (unsigned int i = 0; i < m; i++)
+			for (unsigned int i = 0; i <= m; i++)
 			{
-				for (unsigned int j = 0; j < n; j++)
+				for (unsigned int j = 0; j <= n; j++)
 				{
 					Bij = Points->at(this->bezierPoints->getAt(i, j));
 					M = this->bersteinSamplesM->getAt(i, s);

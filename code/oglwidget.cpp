@@ -13,12 +13,12 @@ using namespace std;
 static string fileName = "example.txt";
 static float scale = 4.0f;
 
-static int resolution = 4;
+static int resolution = 100;
 static bool drawSurface = true;
 static bool drawWireframe = false;
 
-static bool doRotation = true;
-static double alpha = 0;         // rotation angle
+static bool doRotation = false;
+static double alpha = 270;         // rotation angle
 
 
 // initialize Open GL lighting and projection matrix
@@ -130,9 +130,9 @@ void OGLWidget::paintGL()       // draw everything, to be called repeatedly
     // draw the scene
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();               // Reset The Current Modelview Matrix
-    glTranslated(0, 0, -10.0);      // Move 10 units backwards in z, since camera is at origin
+	glTranslated(-5, 0, -10.0);      // Move 10 units backwards in z, since camera is at origin
     glScaled(scale, scale, scale);  // scale objects
-	glRotated (alpha, 0, 3, 1);
+	glRotated(alpha, 1, 0.5, 0.5);
 	if (doRotation)
 		alpha += 1;					// continuous rotation
 
