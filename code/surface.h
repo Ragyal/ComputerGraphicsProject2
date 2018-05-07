@@ -31,7 +31,7 @@ private:
 
 	Matrix<unsigned int>* surface;			// type int index		resolution+1 rows resolution+1 columns
 
-	void readFile(std::string fileName);
+	bool readFile(std::string fileName);
 	void precalcBersteinPolynomials();
 	void calcSurface();
 };

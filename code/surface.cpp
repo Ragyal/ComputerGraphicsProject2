@@ -12,9 +12,10 @@ Surface::Surface(std::string fileName, unsigned int resolution)
 {
     this->resolution = resolution;
 
-	readFile(fileName);
-	precalcBersteinPolynomials();
-	calcSurface();
+	if (readFile(fileName)) {
+		precalcBersteinPolynomials();
+		calcSurface();
+	}
 }
 
 Surface::~Surface()
@@ -144,16 +145,16 @@ void Surface::DrawControlMesh() const
 	}
 }
 
-void Surface::readFile(std::string fileName)
+bool Surface::readFile(std::string fileName)
 {
-    //std::string fname("D:/Projekte/Qt/ComputerGraphicsProject2/data/" + fileName);				/// Windows OVE
-    std::string fname("/Users/ove/Documents/Qt/ComputerGraphicsProject2/data/" + fileName);	/// MAC OVE
+	std::string fname("D:/Projekte/Qt/ComputerGraphicsProject2/data/" + fileName);				/// Windows OVE
+	//std::string fname("/Users/ove/Documents/Qt/ComputerGraphicsProject2/data/" + fileName);	/// MAC OVE
 
 	std::ifstream file(fname.c_str());
 	if (!file)
 	{
 		std::cout << "error opening file" << std::endl;
-		return;
+		return false;
 	}
 
 	bool created = false;
@@ -179,7 +180,7 @@ void Surface::readFile(std::string fileName)
 				else
 				{
 					std::cout << "file content obstructed" << std::endl;
-					return;
+					return false;
 				}
 			}
 			file >> x >> y >> z;
@@ -201,6 +202,7 @@ void Surface::readFile(std::string fileName)
 		file >> key;
 	}
 	file.close();
+	return true;
 }
 
 /// Source: https://ideone.com/aDJXNO   --- NOCH NICHT GETESTET!!!   <-- FALLS FEHLER AUFTRETEN
