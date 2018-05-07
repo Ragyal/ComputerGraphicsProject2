@@ -103,7 +103,7 @@ OGLWidget::OGLWidget(QWidget *parent) : QOpenGLWidget(parent)   // constructor
 
 OGLWidget::~OGLWidget() // destructor
 {
-    delete surface;
+    delete this->surface;
 }
 
 

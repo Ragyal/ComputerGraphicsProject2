@@ -20,8 +20,17 @@ Surface::Surface(std::string fileName, unsigned int resolution)
 Surface::~Surface()
 {
     delete this->bezierPoints;
-	delete this->bersteinSamplesM;
-	delete this->bersteinSamplesN;
+
+    if (this->bersteinSamplesM->getM() == this->bersteinSamplesN->getM() && this->bersteinSamplesM->getN() == this->bersteinSamplesN->getN())
+    {
+        delete this->bersteinSamplesM;
+    }
+    else
+    {
+        delete this->bersteinSamplesM;
+        delete this->bersteinSamplesN;
+    }
+
 	delete this->surface;
 
     for (unsigned long i = 0; i < Points->size(); i++)
@@ -137,8 +146,8 @@ void Surface::DrawControlMesh() const
 
 void Surface::readFile(std::string fileName)
 {
-	std::string fname("D:/Projekte/Qt/ComputerGraphicsProject2/data/" + fileName);				/// Windows OVE
-	//std::string fname("/Users/ove/Documents/Qt/ComputerGraphicsProject2/data/" + fileName);	/// MAC OVE
+    //std::string fname("D:/Projekte/Qt/ComputerGraphicsProject2/data/" + fileName);				/// Windows OVE
+    std::string fname("/Users/ove/Documents/Qt/ComputerGraphicsProject2/data/" + fileName);	/// MAC OVE
 
 	std::ifstream file(fname.c_str());
 	if (!file)
