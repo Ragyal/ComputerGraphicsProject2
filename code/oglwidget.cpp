@@ -7,10 +7,8 @@
 #include "vertex.h"
 #include "quad.h"
 
-using namespace std;
 
-
-static string fileName = "example.txt";
+static std::string fileName = "exampleSurface.txt";
 static float scale = 4.0f;
 
 static int resolution = 100;
@@ -142,8 +140,8 @@ void OGLWidget::paintGL()       // draw everything, to be called repeatedly
 
     // draw a cylinder with default resolution
     /// mesh->DrawMesh(drawSurface, drawWireframe);
-	surface->Draw(drawSurface, drawWireframe);
-	surface->DrawControlMesh();
+    this->surface->Draw(drawSurface, drawWireframe);
+    this->surface->DrawControlMesh();
 
     // make it appear (before this, it's hidden in the rear buffer)
     glFlush();

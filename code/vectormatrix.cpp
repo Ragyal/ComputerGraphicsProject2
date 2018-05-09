@@ -1,5 +1,7 @@
 #include "vectormatrix.h"
+
 #include <iostream>
+
 
 VectorMatrix::VectorMatrix(unsigned int m, unsigned int n)
 {

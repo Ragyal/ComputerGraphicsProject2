@@ -1,5 +1,6 @@
 #include "vertex.h"
 
+
 Vertex::Vertex(float x, float y, float z, int i)
 {
     this->position = QVector3D(x, y, z);
@@ -19,7 +20,7 @@ QVector3D operator-(const Vertex& vA, const Vertex& vB)
 	return vA.position - vB.position;
 }
 
-ostream& operator<<(ostream& Stream, const Vertex& v)
+std::ostream& operator<<(std::ostream& Stream, const Vertex& v)
 {
 	return Stream << v.Index() << ": (" << v.X() << ", " << v.Y() << ", " << v.Z() << "), valence = " << v.Valence();
 }

@@ -1,5 +1,7 @@
 #include "matrix.h"
+
 #include <iostream>
+
 
 template<class T>
 Matrix<T>::Matrix(unsigned int m, unsigned int n)

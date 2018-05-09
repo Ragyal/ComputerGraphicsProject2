@@ -4,8 +4,6 @@
 #include <iostream>
 #include <QVector3D>
 
-using namespace std;
-
 
 class Vertex
 {
@@ -28,7 +26,7 @@ public:
 	void DecreaseValence() {valence--;}
 
 	friend QVector3D operator-(const Vertex& vA, const Vertex& vB);
-	friend ostream& operator<<(ostream& Stream, const Vertex& v);
+    friend std::ostream& operator<<(std::ostream& Stream, const Vertex& v);
 
 
 private:

@@ -14,17 +14,17 @@ public:
     Mesh(std::string fileName, int subdivisions = 0);
     ~Mesh();
 
-    static std::vector<Vertex*>* Vertices;
-    static std::vector<Quad*>* Faces;
-
 	void PrintAll();
     void DrawMesh(bool drawSurface = true, bool drawWireframe = false);
 
 private:
+    std::vector<Vertex*>* vertices;
+    std::vector<Quad*>* faces;
+
 	void readFile(std::string fileName);
 
 	void connectMesh();
-	vector<Vertex*>* backupVertices();
+    std::vector<Vertex*>* backupVertices();
 
 	void calcSubdivisionMask(unsigned int n = 1);
 	void calcFaceVertices();

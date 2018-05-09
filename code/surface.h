@@ -5,6 +5,8 @@
 #include <QVector3D>
 
 #include <matrix.h>
+#include <vertex.h>
+#include <quad.h>
 
 
 class Surface
@@ -12,8 +14,6 @@ class Surface
 public:
 	Surface(std::string fileName, unsigned int resolution = 20);
     ~Surface();
-
-    static std::vector<QVector3D*>* Points;
 
 	void Print(bool printBezierPoints = true) const;
 	void Draw(bool drawSurface = true, bool drawWireframe = true) const;
@@ -23,6 +23,9 @@ public:
 	unsigned int GetDegreeN() const { return this->bersteinSamplesN->getM()-1; }
 
 private:
+    std::vector<Vertex*>* points;
+    std::vector<Quad*>* quads;
+
 	unsigned int resolution;
 	Matrix<unsigned int>* bezierPoints;		// type int index		m rows and n columns		OR m+1 rows and n+1 columns
 
@@ -34,6 +37,7 @@ private:
 	bool readFile(std::string fileName);
 	void precalcBersteinPolynomials();
 	void calcSurface();
+    void generateQuads();
 };
 
 #endif // SURFACE_H

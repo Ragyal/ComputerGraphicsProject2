@@ -26,7 +26,8 @@ SOURCES += main.cpp\
     mesh.cpp \
     surface.cpp \
     vectormatrix.cpp \
-    matrix.cpp
+    matrix.cpp \
+    curve.cpp
 
 HEADERS  += mainwindow.h \
     oglwidget.h \
@@ -35,7 +36,8 @@ HEADERS  += mainwindow.h \
     mesh.h \
     surface.h \
     vectormatrix.h \
-    matrix.h
+    matrix.h \
+    curve.h
 
 FORMS += mainwindow.ui
 

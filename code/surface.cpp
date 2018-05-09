@@ -6,15 +6,16 @@
 #include <math.h>
 
 
-std::vector<QVector3D*>* Surface::Points = new std::vector<QVector3D*>();
-
 Surface::Surface(std::string fileName, unsigned int resolution)
 {
+    this->points = new std::vector<Vertex*>();
+    this->quads = new std::vector<Quad*>();
     this->resolution = resolution;
 
 	if (readFile(fileName)) {
 		precalcBersteinPolynomials();
 		calcSurface();
+        generateQuads();
 	}
 }
 
@@ -34,11 +35,17 @@ Surface::~Surface()
 
 	delete this->surface;
 
-    for (unsigned long i = 0; i < Points->size(); i++)
+    for (unsigned long i = 0; i < this->quads->size(); i++)
     {
-		delete Points->at(i);
+        delete this->quads->at(i);
     }
-    delete Points;
+    delete this->quads;
+
+    for (unsigned long i = 0; i < this->points->size(); i++)
+    {
+        delete this->points->at(i);
+    }
+    delete this->points;
 }
 
 void Surface::Print(bool printBezierPoints) const
@@ -49,62 +56,10 @@ void Surface::Print(bool printBezierPoints) const
 
 void Surface::Draw(bool drawSurface, bool drawWireframe) const
 {
-	unsigned int m = this->surface->getM();
-	unsigned int n = this->surface->getN();
-
-	QVector3D *posA, *posB, *posC, *posD;
-	QVector3D rVa, rVb, normalV;
-
-	for (unsigned int i = 0; i < m-1; i++)
-	{
-		for (unsigned int j = 0; j < n-1; j++)
-		{
-			posA = Points->at(surface->getAt(i, j));
-			posB = Points->at(surface->getAt(i+1, j));
-			posC = Points->at(surface->getAt(i+1, j+1));
-			posD = Points->at(surface->getAt(i, j+1));
-
-			rVa = *posC - *posA;
-			rVb = *posD - *posB;
-			normalV = QVector3D::normal(rVa, rVb);
-
-			if (drawSurface)
-			{
-				glBegin(GL_QUADS);
-
-				glNormal3f(normalV.x(), normalV.y(), normalV.z());
-
-				glVertex3f(posA->x(), posA->y(), posA->z());
-				glVertex3f(posB->x(), posB->y(), posB->z());
-				glVertex3f(posC->x(), posC->y(), posC->z());
-				glVertex3f(posD->x(), posD->y(), posD->z());
-
-				glEnd();
-			}
-
-			if (drawWireframe)
-			{
-				glDisable(GL_LIGHTING);
-				glBegin(GL_LINES);
-				glColor3f(0.0, 0.0, 0.0);
-
-				glVertex3f(posA->x(), posA->y(), posA->z());
-				glVertex3f(posB->x(), posB->y(), posB->z());
-
-				glVertex3f(posB->x(), posB->y(), posB->z());
-				glVertex3f(posC->x(), posC->y(), posC->z());
-
-				glVertex3f(posC->x(), posC->y(), posC->z());
-				glVertex3f(posD->x(), posD->y(), posD->z());
-
-				glVertex3f(posD->x(), posD->y(), posD->z());
-				glVertex3f(posA->x(), posA->y(), posA->z());
-
-				glEnd();
-				glEnable(GL_LIGHTING);
-			}
-		}
-	}
+    for (unsigned long i = 0; i < this->quads->size(); i++)
+    {
+        this->quads->at(i)->Draw(drawSurface, drawWireframe);
+    }
 }
 
 void Surface::DrawControlMesh() const
@@ -112,32 +67,32 @@ void Surface::DrawControlMesh() const
 	unsigned int m = this->bezierPoints->getM();
 	unsigned int n = this->bezierPoints->getN();
 
-	QVector3D *posA, *posB, *posC, *posD;
+    Vertex *posA, *posB, *posC, *posD;
 
 	for (unsigned int i = 0; i < m-1; i++)
 	{
 		for (unsigned int j = 0; j < n-1; j++)
 		{
-			posA = Points->at(bezierPoints->getAt(i, j));
-			posB = Points->at(bezierPoints->getAt(i+1, j));
-			posC = Points->at(bezierPoints->getAt(i+1, j+1));
-			posD = Points->at(bezierPoints->getAt(i, j+1));
+            posA = this->points->at(bezierPoints->getAt(i, j));
+            posB = this->points->at(bezierPoints->getAt(i+1, j));
+            posC = this->points->at(bezierPoints->getAt(i+1, j+1));
+            posD = this->points->at(bezierPoints->getAt(i, j+1));
 
 			glDisable(GL_LIGHTING);
 			glBegin(GL_LINES);
 			glColor3f(0.0, 0.0, 0.0);
 
-			glVertex3f(posA->x(), posA->y(), posA->z());
-			glVertex3f(posB->x(), posB->y(), posB->z());
+            glVertex3f(posA->X(), posA->Y(), posA->Z());
+            glVertex3f(posB->X(), posB->Y(), posB->Z());
 
-			glVertex3f(posB->x(), posB->y(), posB->z());
-			glVertex3f(posC->x(), posC->y(), posC->z());
+            glVertex3f(posB->X(), posB->Y(), posB->Z());
+            glVertex3f(posC->X(), posC->Y(), posC->Z());
 
-			glVertex3f(posC->x(), posC->y(), posC->z());
-			glVertex3f(posD->x(), posD->y(), posD->z());
+            glVertex3f(posC->X(), posC->Y(), posC->Z());
+            glVertex3f(posD->X(), posD->Y(), posD->Z());
 
-			glVertex3f(posD->x(), posD->y(), posD->z());
-			glVertex3f(posA->x(), posA->y(), posA->z());
+            glVertex3f(posD->X(), posD->Y(), posD->Z());
+            glVertex3f(posA->X(), posA->Y(), posA->Z());
 
 			glEnd();
 			glEnable(GL_LIGHTING);
@@ -147,8 +102,8 @@ void Surface::DrawControlMesh() const
 
 bool Surface::readFile(std::string fileName)
 {
-	std::string fname("D:/Projekte/Qt/ComputerGraphicsProject2/data/" + fileName);				/// Windows OVE
-	//std::string fname("/Users/ove/Documents/Qt/ComputerGraphicsProject2/data/" + fileName);	/// MAC OVE
+    //std::string fname("D:/Projekte/Qt/ComputerGraphicsProject2/data/" + fileName);				/// Windows OVE
+    std::string fname("/Users/ove/Documents/Qt/ComputerGraphicsProject2/data/" + fileName);	/// MAC OVE
 
 	std::ifstream file(fname.c_str());
 	if (!file)
@@ -163,7 +118,7 @@ bool Surface::readFile(std::string fileName)
 	int m = 0, n = 0;
 	float x, y, z;
 	unsigned long i;
-	QVector3D* pos;
+    Vertex* pos;
 
 	file >> key;
 	while (file)
@@ -184,10 +139,11 @@ bool Surface::readFile(std::string fileName)
 				}
 			}
 			file >> x >> y >> z;
-			pos = new QVector3D(x, y, z);
 
-			i = Points->size();
-			Points->push_back(pos);
+            i = this->points->size();
+            pos = new Vertex(x, y, z, i);
+
+            this->points->push_back(pos);
 
 			bezierPoints->setAt(i/n, i%n, i);
 		}
@@ -205,7 +161,7 @@ bool Surface::readFile(std::string fileName)
 	return true;
 }
 
-/// Source: https://ideone.com/aDJXNO   --- NOCH NICHT GETESTET!!!   <-- FALLS FEHLER AUFTRETEN
+/// Source: https://ideone.com/aDJXNO
 unsigned int nChoosek(unsigned int n, unsigned int k)
 {
 	if (k > n)
@@ -268,7 +224,8 @@ void Surface::calcSurface()
 	unsigned int m = this->GetDegreeM();
 	unsigned int n = this->GetDegreeN();
 
-	QVector3D *pos, *Bij;
+    QVector3D pos, Bij;
+    Vertex* v;
 	double M, N;
 	unsigned int index;
 
@@ -276,22 +233,47 @@ void Surface::calcSurface()
 	{
 		for (unsigned int t = 0; t < resolution+1; t++)
 		{
-			pos = new QVector3D();
+            pos = QVector3D();
 
 			for (unsigned int i = 0; i <= m; i++)
 			{
 				for (unsigned int j = 0; j <= n; j++)
 				{
-					Bij = Points->at(this->bezierPoints->getAt(i, j));
+                    Bij = this->points->at(this->bezierPoints->getAt(i, j))->Position();
 					M = this->bersteinSamplesM->getAt(i, s);
 					N = this->bersteinSamplesN->getAt(j, t);
-					*pos += *Bij * M * N;
+                    pos += Bij * M * N;
 				}
 			}
 
-			index = Points->size();
-			Points->push_back(pos);
+            index = this->points->size();
+            v = new Vertex(pos.x(), pos.y(), pos.z(), index);
+            this->points->push_back(v);
 			surface->setAt(s, t, index);
 		}
-	}
+    }
+}
+
+void Surface::generateQuads()
+{
+    unsigned int m = this->surface->getM();
+    unsigned int n = this->surface->getN();
+
+    unsigned long a, b, c, d, index;
+    Quad* q;
+
+    for (unsigned int i = 0; i < m-1; i++)
+    {
+        for (unsigned int j = 0; j < n-1; j++)
+        {
+            a = surface->getAt(i, j);
+            b = surface->getAt(i+1, j);
+            c = surface->getAt(i+1, j+1);
+            d = surface->getAt(i, j+1);
+
+            index = this->quads->size();
+            q = new Quad(this->points, this->quads, a, b, c, d, index);
+            this->quads->push_back(q);
+        }
+    }
 }

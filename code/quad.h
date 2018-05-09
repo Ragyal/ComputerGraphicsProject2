@@ -11,7 +11,7 @@ class Quad
 {
 public:
     Quad();
-	Quad(int a, int b, int c, int d, int i );
+    Quad(std::vector<Vertex*>* points, std::vector<Quad*>* quads, int a, int b, int c, int d, int i );
     ~Quad();
 
 	int Index() const {return index;}
@@ -49,11 +49,13 @@ public:
 	void CalcAllEdgeVertices();
 	void InsertEdgeVertexAt(int vertexA, int vertexB, int index);	// inserts index of EdgeVertex on edge with vertexA and vertexB
 
-	void Divide(vector<Quad*>* faces);								// divides Quad up into four new Quads and adds them to a new Quad vector
+    void Divide(std::vector<Quad*>* faces);								// divides Quad up into four new Quads and adds them to a new Quad vector
 
-	friend ostream& operator<<(ostream& Stream, const Quad& q);
+    friend std::ostream& operator<<(std::ostream& Stream, const Quad& q);
 
 private:
+    std::vector<Vertex*>* verticesReference;
+    std::vector<Quad*>* quadsReference;
 	int index;
     int vertices[4] = {-1, -1, -1, -1};
 	int faceVertex;
