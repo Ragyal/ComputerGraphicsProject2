@@ -13,23 +13,22 @@ Mesh::Mesh(std::string fileName, int subdivisions)
 	readFile(fileName);
 	connectMesh();
 
-    calcSubdivisionMask(subdivisions);
-	PrintAll();
+	calcSubdivisionMask(subdivisions);
 }
 
 Mesh::~Mesh()
 {
     for (unsigned long i = 0; i < faces->size(); i++)
 	{
-        delete faces->at(i);
+		delete this->faces->at(i);
 	}
-    delete faces;
+	delete this->faces;
 
     for (unsigned long i = 0; i < vertices->size(); i++)
 	{
-        delete vertices->at(i);
+		delete this->vertices->at(i);
 	}
-    delete vertices;
+	delete this->vertices;
 }
 
 void Mesh::PrintAll() {
@@ -54,16 +53,13 @@ void Mesh::DrawMesh(bool drawSurface, bool drawWireframe)
 	}
 }
 
-void Mesh::readFile(std::string fileName)
+bool Mesh::readFile(std::string fileName)
 {
-    std::string fname("D:/Projekte/Qt/ComputerGraphicsProject1/data/" + fileName);			/// Windows OVE
-    //std::string fname("/Users/ove/Documents/Qt/ComputerGraphicsProject1/data/" + fileName);	/// MAC OVE
-
-    std::ifstream file(fname.c_str());
+	std::ifstream file(fileName.c_str());
     if (!file)
     {
         std::cout << "error opening file" << std::endl;
-        return;
+		return false;
     }
 
     std::string key;
@@ -92,6 +88,7 @@ void Mesh::readFile(std::string fileName)
         file >> key;
     }
 	file.close();
+	return true;
 }
 
 void Mesh::connectMesh()
@@ -104,14 +101,14 @@ void Mesh::connectMesh()
 
 void Mesh::calcSubdivisionMask(unsigned int n)
 {
-	unsigned long coutOriginalVertices;
+	unsigned long countOriginalVertices;
 	for (unsigned int i = 0; i < n; i++)
 	{
-        coutOriginalVertices = this->vertices->size();
+		countOriginalVertices = this->vertices->size();
 
 		calcFaceVertices();
 		calcEdgeVertices();
-		recalcOriginalVertices(coutOriginalVertices);
+		recalcOriginalVertices(countOriginalVertices);
 		divideQuads();
 		connectMesh();
 	}
@@ -133,7 +130,7 @@ void Mesh::calcEdgeVertices()
 	}
 }
 
-void Mesh::recalcOriginalVertices(unsigned long coutOriginalVertices)
+void Mesh::recalcOriginalVertices(unsigned long countOriginalVertices)
 {
 	Vertex* currentVertex;
 	int n;
@@ -142,7 +139,7 @@ void Mesh::recalcOriginalVertices(unsigned long coutOriginalVertices)
 	QVector3D avgEdgeVertices;
 	QVector3D newPos;
 
-	for (unsigned long i = 0; i < coutOriginalVertices; i++)
+	for (unsigned long i = 0; i < countOriginalVertices; i++)
 	{
         currentVertex = this->vertices->at(i);
 		currentPos = currentVertex->Position();

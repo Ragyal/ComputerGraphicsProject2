@@ -27,7 +27,8 @@ SOURCES += main.cpp\
     surface.cpp \
     vectormatrix.cpp \
     matrix.cpp \
-    curve.cpp
+    curve.cpp \
+    bernsteinpolynomial.cpp
 
 HEADERS  += mainwindow.h \
     oglwidget.h \
@@ -37,7 +38,8 @@ HEADERS  += mainwindow.h \
     surface.h \
     vectormatrix.h \
     matrix.h \
-    curve.h
+    curve.h \
+    bernsteinpolynomial.h
 
 FORMS += mainwindow.ui
 

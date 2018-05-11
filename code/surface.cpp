@@ -3,12 +3,11 @@
 #include <QOpenGLFunctions>
 #include <iostream>
 #include <fstream>
-#include <math.h>
 
 
 Surface::Surface(std::string fileName, unsigned int resolution)
 {
-    this->points = new std::vector<Vertex*>();
+	this->vertices = new std::vector<Vertex*>();
     this->quads = new std::vector<Quad*>();
     this->resolution = resolution;
 
@@ -23,7 +22,7 @@ Surface::~Surface()
 {
     delete this->bezierPoints;
 
-    if (this->bersteinSamplesM->getM() == this->bersteinSamplesN->getM() && this->bersteinSamplesM->getN() == this->bersteinSamplesN->getN())
+	if (this->degreeM == this->degreeN)
     {
         delete this->bersteinSamplesM;
     }
@@ -41,17 +40,16 @@ Surface::~Surface()
     }
     delete this->quads;
 
-    for (unsigned long i = 0; i < this->points->size(); i++)
+	for (unsigned long i = 0; i < this->vertices->size(); i++)
     {
-        delete this->points->at(i);
+		delete this->vertices->at(i);
     }
-    delete this->points;
+	delete this->vertices;
 }
 
 void Surface::Print(bool printBezierPoints) const
 {
-    if (printBezierPoints)
-		this->bezierPoints->Print();
+
 }
 
 void Surface::Draw(bool drawSurface, bool drawWireframe) const
@@ -73,10 +71,10 @@ void Surface::DrawControlMesh() const
 	{
 		for (unsigned int j = 0; j < n-1; j++)
 		{
-            posA = this->points->at(bezierPoints->getAt(i, j));
-            posB = this->points->at(bezierPoints->getAt(i+1, j));
-            posC = this->points->at(bezierPoints->getAt(i+1, j+1));
-            posD = this->points->at(bezierPoints->getAt(i, j+1));
+			posA = this->vertices->at(bezierPoints->getAt(i, j));
+			posB = this->vertices->at(bezierPoints->getAt(i+1, j));
+			posC = this->vertices->at(bezierPoints->getAt(i+1, j+1));
+			posD = this->vertices->at(bezierPoints->getAt(i, j+1));
 
 			glDisable(GL_LIGHTING);
 			glBegin(GL_LINES);
@@ -102,10 +100,7 @@ void Surface::DrawControlMesh() const
 
 bool Surface::readFile(std::string fileName)
 {
-    //std::string fname("D:/Projekte/Qt/ComputerGraphicsProject2/data/" + fileName);				/// Windows OVE
-    std::string fname("/Users/ove/Documents/Qt/ComputerGraphicsProject2/data/" + fileName);	/// MAC OVE
-
-	std::ifstream file(fname.c_str());
+	std::ifstream file(fileName.c_str());
 	if (!file)
 	{
 		std::cout << "error opening file" << std::endl;
@@ -129,7 +124,7 @@ bool Surface::readFile(std::string fileName)
 			{
 				if (m > 0 && n > 0)
 				{
-					bezierPoints = new Matrix<unsigned int>(m, n);
+					this->bezierPoints = new Matrix<unsigned int>(m, n);
 					created = true;
 				}
 				else
@@ -140,20 +135,22 @@ bool Surface::readFile(std::string fileName)
 			}
 			file >> x >> y >> z;
 
-            i = this->points->size();
+			i = this->vertices->size();
             pos = new Vertex(x, y, z, i);
 
-            this->points->push_back(pos);
+			this->vertices->push_back(pos);
 
-			bezierPoints->setAt(i/n, i%n, i);
+			this->bezierPoints->setAt(i/n, i%n, i);
 		}
 		else if (key == "m")
 		{
 			file >> m;
+			this->degreeM = m - 1;
 		}
 		else if (key == "n")
 		{
 			file >> n;
+			this->degreeN = n - 1;
 		}
 		file >> key;
 	}
@@ -161,59 +158,17 @@ bool Surface::readFile(std::string fileName)
 	return true;
 }
 
-/// Source: https://ideone.com/aDJXNO
-unsigned int nChoosek(unsigned int n, unsigned int k)
-{
-	if (k > n)
-		return 0;
-	if (k * 2 > n)
-		k = n-k;
-	if (k == 0)
-		return 1;
-
-	int result = n;
-	for (unsigned int i = 2; i <= k; ++i)
-	{
-		result *= (n-i+1);
-		result /= i;
-	}
-	return result;
-}
-
 void Surface::precalcBersteinPolynomials()
 {
-	unsigned int m = this->bezierPoints->getM();
-	unsigned int n = this->bezierPoints->getN();
-	double stepSize = 1.0f/resolution;
+	this->bersteinSamplesM = new BernsteinPolynomial(this->degreeM, this->resolution);
 
-	this->bersteinSamplesM = new Matrix<double>(m, resolution+1);
-	double val;
-
-	for (unsigned int i = 0; i < m; i++)
-	{
-		for (unsigned int t = 0; t < resolution+1; t++)
-		{
-			val = nChoosek(this->GetDegreeM(), i) * pow(t*stepSize, i) * pow((1.0f - t*stepSize), (this->GetDegreeM()-i));
-			this->bersteinSamplesM->setAt(i, t, val);
-		}
-	}
-
-	if (m == n)
+	if (this->degreeM == this->degreeN)
 	{
 		this->bersteinSamplesN = this->bersteinSamplesM;
 	}
 	else
 	{
-		this->bersteinSamplesN = new Matrix<double>(n, resolution+1);
-
-		for (unsigned int j = 0; j < n; j++)
-		{
-			for (unsigned int t = 0; t < resolution+1; t++)
-			{
-				val = nChoosek(this->GetDegreeN(), j) * pow(t*stepSize, j) * pow((1.0f - t*stepSize), (this->GetDegreeN()-j));
-				this->bersteinSamplesN->setAt(j, t, val);
-			}
-		}
+		this->bersteinSamplesN = new BernsteinPolynomial(this->degreeN, this->resolution);
 	}
 }
 
@@ -221,35 +176,32 @@ void Surface::calcSurface()
 {
 	this->surface = new Matrix<unsigned int>(resolution+1, resolution+1);
 
-	unsigned int m = this->GetDegreeM();
-	unsigned int n = this->GetDegreeN();
-
     QVector3D pos, Bij;
     Vertex* v;
 	double M, N;
 	unsigned int index;
 
-	for (unsigned int s = 0; s < resolution+1; s++)
+	for (unsigned int s = 0; s < this->resolution+1; s++)
 	{
-		for (unsigned int t = 0; t < resolution+1; t++)
+		for (unsigned int t = 0; t < this->resolution+1; t++)
 		{
             pos = QVector3D();
 
-			for (unsigned int i = 0; i <= m; i++)
+			for (unsigned int i = 0; i <= this->degreeM; i++)
 			{
-				for (unsigned int j = 0; j <= n; j++)
+				for (unsigned int j = 0; j <= this->degreeN; j++)
 				{
-                    Bij = this->points->at(this->bezierPoints->getAt(i, j))->Position();
-					M = this->bersteinSamplesM->getAt(i, s);
-					N = this->bersteinSamplesN->getAt(j, t);
+					Bij = this->vertices->at(this->bezierPoints->getAt(i, j))->Position();
+					M = this->bersteinSamplesM->Get(i, s);
+					N = this->bersteinSamplesN->Get(j, t);
                     pos += Bij * M * N;
 				}
 			}
 
-            index = this->points->size();
+			index = this->vertices->size();
             v = new Vertex(pos.x(), pos.y(), pos.z(), index);
-            this->points->push_back(v);
-			surface->setAt(s, t, index);
+			this->vertices->push_back(v);
+			this->surface->setAt(s, t, index);
 		}
     }
 }
@@ -272,7 +224,7 @@ void Surface::generateQuads()
             d = surface->getAt(i, j+1);
 
             index = this->quads->size();
-            q = new Quad(this->points, this->quads, a, b, c, d, index);
+			q = new Quad(this->vertices, this->quads, a, b, c, d, index);
             this->quads->push_back(q);
         }
     }

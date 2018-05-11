@@ -7,6 +7,7 @@
 #include <matrix.h>
 #include <vertex.h>
 #include <quad.h>
+#include <bernsteinpolynomial.h>
 
 
 class Surface
@@ -19,18 +20,17 @@ public:
 	void Draw(bool drawSurface = true, bool drawWireframe = true) const;
 	void DrawControlMesh() const;
 
-	unsigned int GetDegreeM() const { return this->bersteinSamplesM->getM()-1; }
-	unsigned int GetDegreeN() const { return this->bersteinSamplesN->getM()-1; }
-
 private:
-    std::vector<Vertex*>* points;
+	std::vector<Vertex*>* vertices;
     std::vector<Quad*>* quads;
 
+	unsigned int degreeM;
+	unsigned int degreeN;
 	unsigned int resolution;
 	Matrix<unsigned int>* bezierPoints;		// type int index		m rows and n columns		OR m+1 rows and n+1 columns
 
-	Matrix<double>* bersteinSamplesM;		// type double [0, 1]	m rows resolution+1 columns OR m+1 rows resolution+1 columns
-	Matrix<double>* bersteinSamplesN;		// type double [0, 1]	n rows resolution+1 columns OR n+1 rows resolution+1 columns
+	BernsteinPolynomial* bersteinSamplesM;		// type double [0, 1]	m rows resolution+1 columns OR m+1 rows resolution+1 columns
+	BernsteinPolynomial* bersteinSamplesN;		// type double [0, 1]	n rows resolution+1 columns OR n+1 rows resolution+1 columns
 
 	Matrix<unsigned int>* surface;			// type int index		resolution+1 rows resolution+1 columns
 

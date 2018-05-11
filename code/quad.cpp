@@ -166,20 +166,20 @@ void Quad::InsertEdgeVertexAt(int vertexA, int vertexB, int index)
 	}
 }
 
-void Quad::Divide(std::vector<Quad*>* faces)
+void Quad::Divide(std::vector<Quad*>* newFaces)
 {
 	int index;
 	Quad* q;
 
 	for (unsigned int i = 0; i < 4; i++)
 	{
-		index = faces->size();
-        q = new Quad(this->verticesReference, this->quadsReference, vertices[i], edgeVertices[i], faceVertex, edgeVertices[i == 0 ? 3 : i - 1], index);
+		index = newFaces->size();
+		q = new Quad(this->verticesReference, newFaces, vertices[i], edgeVertices[i], faceVertex, edgeVertices[i == 0 ? 3 : i - 1], index);
 
 		q->SetNeighbor(1, i == 3 ? index - 3 : index + 1);
 		q->SetNeighbor(2, i == 0 ? index + 3 : index - 1);
 
-		faces->push_back(q);
+		newFaces->push_back(q);
 	}
 }
 

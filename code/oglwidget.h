@@ -5,7 +5,9 @@
 #include <QOpenGLFunctions>
 #include <QTimer>
 
+#include <mesh.h>
 #include <surface.h>
+#include <curve.h>
 
 
 class OGLWidget : public QOpenGLWidget, protected QOpenGLFunctions
@@ -28,7 +30,9 @@ protected:
     QTimer* animtimer; // Timer needed to step animation every x msec
     int animstep;      // Current animation step (used to rotate triangle
 private:
+	Mesh* mesh;
     Surface* surface;
+	Curve* curve;
 };
 
 #endif // OGLWIDGET_H

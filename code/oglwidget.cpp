@@ -8,10 +8,24 @@
 #include "quad.h"
 
 
-static std::string fileName = "exampleSurface.txt";
+static std::string path = "D:/Projekte/Qt/ComputerGraphicsProject2/data/";			// Ove Windows
+//static std::string path = "/Users/ove/Documents/Qt/ComputerGraphicsProject2/data/";		// Ove MAC
+
+
+static std::string meshFileName = "cube.obj";
+static int meshSudivisions = 4;
+
+
+static std::string surfaceFileName = "exampleSurface.txt";
+static int surfaceResolution = 20;
+
+
+static std::string curveFileName = "exampleCurve.txt";
+static int curveResolution = 20;
+
+
 static float scale = 4.0f;
 
-static int resolution = 100;
 static bool drawSurface = true;
 static bool drawWireframe = false;
 
@@ -19,7 +33,7 @@ static bool doRotation = false;
 static double alpha = 270;         // rotation angle
 
 
-// initialize Open GL lighting and projection matrix
+/// initialize Open GL lighting and projection matrix
 void InitLightingAndProjection()    // to be executed once before drawing
 {
     // light positions and colors
@@ -55,7 +69,7 @@ void InitLightingAndProjection()    // to be executed once before drawing
     //glFrustum(-10, 10, -8, 8, 2, 20); // perspective projektion
 }
 
-// define material color properties for front and back side
+/// define material color properties for front and back side
 void SetMaterialColor(int side, float r, float g, float b)
 {
     float amb[4], dif[4], spe[4];
@@ -87,21 +101,27 @@ void SetMaterialColor(int side, float r, float g, float b)
 
 OGLWidget::OGLWidget(QWidget *parent) : QOpenGLWidget(parent)   // constructor
 {
-	this->surface = new Surface(fileName, resolution);
+	this->mesh = new Mesh(path+meshFileName, meshSudivisions);
+	this->surface = new Surface(path+surfaceFileName, surfaceResolution);
+	this->curve = new Curve(path+curveFileName, curveResolution);
 
-    // Setup the animation timer to fire every x msec
-    animtimer = new QTimer(this);
-    animtimer->start(50);
+	/// Setup the animation timer to fire every x msec
+	this->animtimer = new QTimer(this);
+	this->animtimer->start(50);
 
-    // Everytime the timer fires, the animation is going one step forward
-    connect(animtimer, SIGNAL(timeout()), this, SLOT(stepAnimation()));
+	/// Everytime the timer fires, the animation is going one step forward
+	connect(this->animtimer, SIGNAL(timeout()), this, SLOT(stepAnimation()));
 
     animstep = 0;
 }
 
 OGLWidget::~OGLWidget() // destructor
 {
+	delete this->animtimer;
+
+	delete this->mesh;
     delete this->surface;
+	delete this->curve;
 }
 
 
@@ -121,11 +141,11 @@ void OGLWidget::paintGL()       // draw everything, to be called repeatedly
 {
     glEnable(GL_NORMALIZE);     // this is necessary when using glScale (keep normals to unit length)
 
-    // set background color
+	/// set background color
     glClearColor(0.8, 0.8, 1.0, 1.0); // bright blue
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    // draw the scene
+	/// draw the scene
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();               // Reset The Current Modelview Matrix
 	glTranslated(-5, 0, -10.0);      // Move 10 units backwards in z, since camera is at origin
@@ -134,21 +154,21 @@ void OGLWidget::paintGL()       // draw everything, to be called repeatedly
 	if (doRotation)
 		alpha += 1;					// continuous rotation
 
-    // define color: 1=front, 2=back, 3=both, followed by r, g, and b
+	/// define color: 1=front, 2=back, 3=both, followed by r, g, and b
     SetMaterialColor(1, 1.0, 0.2, 0.2); // front color is red
     SetMaterialColor(2, 0.2, 0.2, 1.0); // back color is blue
 
-    // draw a cylinder with default resolution
-    /// mesh->DrawMesh(drawSurface, drawWireframe);
+	/// draw a cylinder with default resolution
+	//mesh->DrawMesh(drawSurface, drawWireframe);
     this->surface->Draw(drawSurface, drawWireframe);
     this->surface->DrawControlMesh();
 
-    // make it appear (before this, it's hidden in the rear buffer)
+	/// make it appear (before this, it's hidden in the rear buffer)
     glFlush();
 }
 
 void OGLWidget::resizeGL(int w, int h) // called when window size is changed
 {
-    // adjust viewport transform
+	/// adjust viewport transform
     glViewport(0, 0, w, h);
 }

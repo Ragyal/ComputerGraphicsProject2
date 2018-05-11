@@ -21,7 +21,7 @@ private:
     std::vector<Vertex*>* vertices;
     std::vector<Quad*>* faces;
 
-	void readFile(std::string fileName);
+	bool readFile(std::string fileName);
 
 	void connectMesh();
     std::vector<Vertex*>* backupVertices();
@@ -29,7 +29,7 @@ private:
 	void calcSubdivisionMask(unsigned int n = 1);
 	void calcFaceVertices();
 	void calcEdgeVertices();
-	void recalcOriginalVertices(unsigned long coutOriginalVertices);
+	void recalcOriginalVertices(unsigned long countOriginalVertices);
 	void calcSurroundingPoints(int index, QVector3D& avgFaceVertices, QVector3D& avgEdgeVertices);	// needed for recalcOriginalVertices (Vertex-Mask)
 	void divideQuads();
 };

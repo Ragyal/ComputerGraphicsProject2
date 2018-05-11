@@ -6,7 +6,9 @@
 
 Curve::Curve(std::string fileName, unsigned int resolution)
 {
-    this->resolution = resolution;
+	this->vertices = new std::vector<Vertex*>();
+	this->quads = new std::vector<Quad*>();
+	this->resolution = resolution;
 
     if (readFile(fileName)) {
         precalcBersteinPolynomials();
@@ -17,62 +19,48 @@ Curve::Curve(std::string fileName, unsigned int resolution)
 Curve::~Curve()
 {
     delete this->bezierPoints;
+	delete this->bersteinSamples;
 }
 
 bool Curve::readFile(std::string fileName)
 {
-    //std::string fname("D:/Projekte/Qt/ComputerGraphicsProject2/data/" + fileName);				/// Windows OVE
-    std::string fname("/Users/ove/Documents/Qt/ComputerGraphicsProject2/data/" + fileName);	/// MAC OVE
-
-    std::ifstream file(fname.c_str());
+	std::ifstream file(fileName.c_str());
     if (!file)
     {
         std::cout << "error opening file" << std::endl;
         return false;
     }
 
-    bool created = false;
+	this->bezierPoints = new std::vector<unsigned int>();
 
-    std::string key;
-    int n = 0;
+	std::string key;
     float x, y;
-    unsigned long i;
-    QVector3D* pos;
+	unsigned long i;
+	Vertex* pos;
 
     file >> key;
     while (file)
     {
         if (key == "v")
         {
-            if (!created)
-            {
-                if (n > 0)
-                {
-                    bezierPoints = new std::vector<unsigned int>(n);
-                    created = true;
-                }
-                else
-                {
-                    std::cout << "file content obstructed" << std::endl;
-                    return false;
-                }
-            }
             file >> x >> y;
-            pos = new QVector3D(x, y, 0);
-        }
-        else if (key == "n")
-        {
-            file >> n;
-        }
-        file >> key;
-    }
+
+			i = this->vertices->size();
+			pos = new Vertex(x, y, 0, i);
+			this->vertices->push_back(pos);
+			this->bezierPoints->push_back(i);
+		}
+    }	
     file.close();
+
+	this->degree = this->bezierPoints->size() - 1;
+
     return true;
 }
 
 void Curve::precalcBersteinPolynomials()
 {
-
+	this->bersteinSamples = new BernsteinPolynomial(this->degree, this->resolution);
 }
 
 void Curve::calcRotationSurface()

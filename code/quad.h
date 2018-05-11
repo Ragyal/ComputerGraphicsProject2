@@ -49,7 +49,7 @@ public:
 	void CalcAllEdgeVertices();
 	void InsertEdgeVertexAt(int vertexA, int vertexB, int index);	// inserts index of EdgeVertex on edge with vertexA and vertexB
 
-    void Divide(std::vector<Quad*>* faces);								// divides Quad up into four new Quads and adds them to a new Quad vector
+	void Divide(std::vector<Quad*>* newFaces);								// divides Quad up into four new Quads and adds them to a new Quad vector
 
     friend std::ostream& operator<<(std::ostream& Stream, const Quad& q);
 
