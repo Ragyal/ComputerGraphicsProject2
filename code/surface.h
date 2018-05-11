@@ -17,7 +17,7 @@ public:
     ~Surface();
 
 	void Print(bool printBezierPoints = true) const;
-	void Draw(bool drawSurface = true, bool drawWireframe = true) const;
+	void Draw(bool drawSurface = true, bool drawWireframe = false) const;
 	void DrawControlMesh() const;
 
 private:

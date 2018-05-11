@@ -24,13 +24,13 @@ static std::string curveFileName = "exampleCurve.txt";
 static int curveResolution = 20;
 
 
-static float scale = 4.0f;
+static float scale = 3.0f;
 
 static bool drawSurface = true;
 static bool drawWireframe = false;
 
-static bool doRotation = false;
-static double alpha = 270;         // rotation angle
+static bool doRotation = true;
+static double alpha = 0;         // rotation angle
 
 
 /// initialize Open GL lighting and projection matrix
@@ -148,9 +148,9 @@ void OGLWidget::paintGL()       // draw everything, to be called repeatedly
 	/// draw the scene
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();               // Reset The Current Modelview Matrix
-	glTranslated(-5, 0, -10.0);      // Move 10 units backwards in z, since camera is at origin
+	glTranslated(-7.5, 0, -10.0);      // Move 10 units backwards in z, since camera is at origin
     glScaled(scale, scale, scale);  // scale objects
-	glRotated(alpha, 1, 0.5, 0.5);
+	glRotated(alpha, 1, 0, 0);
 	if (doRotation)
 		alpha += 1;					// continuous rotation
 
@@ -158,10 +158,14 @@ void OGLWidget::paintGL()       // draw everything, to be called repeatedly
     SetMaterialColor(1, 1.0, 0.2, 0.2); // front color is red
     SetMaterialColor(2, 0.2, 0.2, 1.0); // back color is blue
 
-	/// draw a cylinder with default resolution
 	//mesh->DrawMesh(drawSurface, drawWireframe);
-    this->surface->Draw(drawSurface, drawWireframe);
-    this->surface->DrawControlMesh();
+
+	//this->surface->Draw(drawSurface, drawWireframe);
+	//this->surface->DrawControlMesh();
+
+	//this->curve->DrawCurve();
+	//this->curve->DrawControlPoints();
+	this->curve->Draw();
 
 	/// make it appear (before this, it's hidden in the rear buffer)
     glFlush();

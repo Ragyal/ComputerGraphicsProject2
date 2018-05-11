@@ -15,6 +15,10 @@ public:
     Curve(std::string fileName, unsigned int resolution);
     ~Curve();
 
+	void DrawControlPoints() const;
+	void DrawCurve() const;
+	void Draw(bool drawSurface = true, bool drawWireframe = false) const;
+
 private:
 	std::vector<Vertex*>* vertices;
 	std::vector<Quad*>* quads;
@@ -25,8 +29,11 @@ private:
 
 	BernsteinPolynomial* bersteinSamples;
 
+	std::vector<unsigned int>* curve;
+
 	bool readFile(std::string fileName);
     void precalcBersteinPolynomials();
+	void calcCurve();
     void calcRotationSurface();
 };
 
