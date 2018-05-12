@@ -171,7 +171,6 @@ void OGLWidget::paintGL()       // draw everything, to be called repeatedly
 	glTranslated(surfaceTranslation.x(), surfaceTranslation.y(), surfaceTranslation.z());
 	glScaled(surfaceScale, surfaceScale, surfaceScale);
 	glRotated(45, 1, 1, 0);
-	//glRotated(45, 1, 1, 0);
 	glRotated(surfaceAlpha, 1, 0, 0);
 
 	this->surface->Draw(surfaceDrawSurface, surfaceDrawWireframe);
