@@ -71,36 +71,9 @@ void Curve::DrawCurve() const
 
 void Curve::Draw(bool drawSurface, bool drawWireframe) const
 {
-	double stepSize = 2 / PI / this->resolution;
-	Vertex *posA, *posB;
-	double a, b;
-
-	for (unsigned int i = 0; i < this->resolution; i++)
+	for (unsigned long i = 0; i < this->quads->size(); i++)
 	{
-		posA = this->vertices->at(this->curve->at(i));
-		posB = this->vertices->at(this->curve->at(i+1));
-
-		glBegin(GL_QUAD_STRIP);
-
-		glVertex3f(posA->X(), posA->Y(), posA->Z());
-		glVertex3f(posB->X(), posB->Y(), posB->Z());
-
-		for (unsigned int r = 1; r < this->resolution-1; r++)
-		{
-			a =  r    * stepSize;
-			b = (r+1) * stepSize;
-
-			glVertex3f(posA->X(), posA->Y() * cos(a) - posA->Z() * sin(a), posA->Y() * sin(a) + posA->Z() * cos(a));
-			glVertex3f(posB->X(), posB->Y() * cos(a) - posB->Z() * sin(a), posB->Y() * sin(a) + posB->Z() * cos(a));
-
-			glVertex3f(posA->X(), posA->Y() * cos(b) - posA->Z() * sin(b), posA->Y() * sin(b) + posA->Z() * cos(b));
-			glVertex3f(posB->X(), posB->Y() * cos(b) - posB->Z() * sin(b), posB->Y() * sin(b) + posB->Z() * cos(b));
-		}
-
-		glVertex3f(posA->X(), posA->Y(), posA->Z());
-		glVertex3f(posB->X(), posB->Y(), posB->Z());
-
-		glEnd();
+		this->quads->at(i)->Draw(drawSurface, drawWireframe);
 	}
 }
 
@@ -175,5 +148,78 @@ void Curve::calcCurve()
 
 void Curve::calcRotationSurface()
 {
+	double stepSize = 360.0 / this->resolution;
+	Vertex *posA, *posB;
+	double A;
+	unsigned int a, b, c, d;
+	float newY, newZ;
+	unsigned long index;
+	std::vector<unsigned int> *verticesA, *verticesB;
+	Vertex* v;
+	Quad* q;
 
+	for (unsigned int i = 0; i < this->curve->size()-1; i++)
+	{
+		posA = this->vertices->at(this->curve->at(i));
+		posB = this->vertices->at(this->curve->at(i+1));
+
+		if (i == 0)
+		{
+			verticesA = new std::vector<unsigned int>(this->resolution, this->curve->at(i));
+
+			for (unsigned int r = 1; r < this->resolution; r++)
+			{
+				A = (r * stepSize) * PI / 180.0;
+				newY = posA->Y() * cos(A) - posA->Z() * sin(A);
+				newZ = posA->Y() * sin(A) + posA->Z() * cos(A);
+				index = this->vertices->size();
+
+				v = new Vertex(posA->X(), newY, newZ, index);
+				this->vertices->push_back(v);
+				verticesA->at(r) = index;
+			}
+		}
+		else
+		{
+			verticesA = verticesB;
+		}
+
+		verticesB = new std::vector<unsigned int>(this->resolution, this->curve->at(i+1));
+
+		for (unsigned int r = 1; r < this->resolution; r++)
+		{
+			A = (r * stepSize) * PI / 180.0;
+			newY = posB->Y() * cos(A) - posB->Z() * sin(A);
+			newZ = posB->Y() * sin(A) + posB->Z() * cos(A);
+			index = this->vertices->size();
+
+			v = new Vertex(posB->X(), newY, newZ, index);
+			this->vertices->push_back(v);
+			verticesB->at(r) = index;
+		}
+
+		for (unsigned int r = 0; r < this->resolution; r++)
+		{
+			a = verticesA->at(r);
+			d = verticesB->at(r);
+
+			if (r == this->resolution-1)
+			{
+				b = verticesA->at(0);
+				c = verticesB->at(0);
+			}
+			else
+			{
+				b = verticesA->at(r+1);
+				c = verticesB->at(r+1);
+			}
+
+			index = this->quads->size();
+			q = new Quad(this->vertices, this->quads, a, b, c, d, index);
+			this->quads->push_back(q);
+		}
+
+		delete verticesA;
+	}
+	delete verticesB;
 }

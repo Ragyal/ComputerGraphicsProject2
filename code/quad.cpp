@@ -68,7 +68,7 @@ void Quad::Draw(bool drawSurface, bool drawWireframe)
     {
         glDisable(GL_LIGHTING);
         glBegin(GL_LINES);
-        glColor3f(0.0, 1.0, 1.0);
+		glColor3f(1.0, 0.0, 1.0);
         for (int i = 0; i < 4; i++)
         {
             glVertex3f(verticesReference->at(vertices[i])->X(), verticesReference->at(vertices[i])->Y(), verticesReference->at(vertices[i])->Z());

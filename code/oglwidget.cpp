@@ -14,20 +14,23 @@ static std::string path = "D:/Projekte/Qt/ComputerGraphicsProject2/data/";			// 
 
 static std::string meshFileName = "cube.obj";
 static int meshSudivisions = 4;
+static bool meshDrawSurface = true;
+static bool meshDrawWireframe = false;
 
 
 static std::string surfaceFileName = "exampleSurface.txt";
 static int surfaceResolution = 20;
+static bool surfaceDrawSurface = true;
+static bool surfaceDrawWireframe = false;
 
 
 static std::string curveFileName = "exampleCurve.txt";
-static int curveResolution = 20;
+static int curveResolution = 100;
+static bool curveDrawSurface = true;
+static bool curveDrawWireframe = false;
 
 
-static float scale = 3.0f;
-
-static bool drawSurface = true;
-static bool drawWireframe = false;
+static float scale = 4.0f;
 
 static bool doRotation = true;
 static double alpha = 0;         // rotation angle
@@ -148,7 +151,7 @@ void OGLWidget::paintGL()       // draw everything, to be called repeatedly
 	/// draw the scene
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();               // Reset The Current Modelview Matrix
-	glTranslated(-7.5, 0, -10.0);      // Move 10 units backwards in z, since camera is at origin
+	glTranslated(-14, 0, -10.0);      // Move 10 units backwards in z, since camera is at origin
     glScaled(scale, scale, scale);  // scale objects
 	glRotated(alpha, 1, 0, 0);
 	if (doRotation)
@@ -158,14 +161,14 @@ void OGLWidget::paintGL()       // draw everything, to be called repeatedly
     SetMaterialColor(1, 1.0, 0.2, 0.2); // front color is red
     SetMaterialColor(2, 0.2, 0.2, 1.0); // back color is blue
 
-	//mesh->DrawMesh(drawSurface, drawWireframe);
+	//mesh->DrawMesh(meshDrawSurface, meshDrawWireframe);
 
-	//this->surface->Draw(drawSurface, drawWireframe);
+	//this->surface->Draw(surfaceDrawSurface, surfaceDrawWireframe);
 	//this->surface->DrawControlMesh();
 
 	//this->curve->DrawCurve();
 	//this->curve->DrawControlPoints();
-	this->curve->Draw();
+	this->curve->Draw(curveDrawSurface, curveDrawWireframe);
 
 	/// make it appear (before this, it's hidden in the rear buffer)
     glFlush();
