@@ -78,7 +78,7 @@ void Surface::DrawControlMesh() const
 
 			glDisable(GL_LIGHTING);
 			glBegin(GL_LINES);
-			glColor3f(0.0, 0.0, 0.0);
+			glColor3f(1.0, 0.0, 1.0);
 
             glVertex3f(posA->X(), posA->Y(), posA->Z());
             glVertex3f(posB->X(), posB->Y(), posB->Z());

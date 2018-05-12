@@ -1,39 +1,41 @@
 #include "oglwidget.h"
 
-#include <math.h>
-#include <iostream>
-#include <vector>
-
-#include "vertex.h"
-#include "quad.h"
-
-
 static std::string path = "D:/Projekte/Qt/ComputerGraphicsProject2/data/";			// Ove Windows
 //static std::string path = "/Users/ove/Documents/Qt/ComputerGraphicsProject2/data/";		// Ove MAC
 
 
+/// Catmull Clark Subdivision
+static QVector3D meshTranslation = QVector3D(1.5, 0, 0);
+static float meshScale = 2.5f;
+static bool meshDoRotation = true;
+static double meshAlpha = 90;
+
 static std::string meshFileName = "cube.obj";
-static int meshSudivisions = 4;
+static int meshSudivisions = 6;
 static bool meshDrawSurface = true;
 static bool meshDrawWireframe = false;
 
+/// Bezier Surface
+static QVector3D surfaceTranslation = QVector3D(-12, 0, 0);
+static float surfaceScale = 2.5f;
+static bool surfaceDoRotation = false;
+static double surfaceAlpha = 90;
 
 static std::string surfaceFileName = "exampleSurface.txt";
-static int surfaceResolution = 20;
+static int surfaceResolution = 100;
 static bool surfaceDrawSurface = true;
 static bool surfaceDrawWireframe = false;
 
+/// Bezier Curve and Rotation Object
+static QVector3D curveTranslation = QVector3D(9, 7, 0);
+static float curveScale = 2.5f;
+static bool curveDoRotation = true;
+static double curveAlpha = 90;
 
 static std::string curveFileName = "exampleCurve.txt";
 static int curveResolution = 100;
 static bool curveDrawSurface = true;
 static bool curveDrawWireframe = false;
-
-
-static float scale = 4.0f;
-
-static bool doRotation = true;
-static double alpha = 0;         // rotation angle
 
 
 /// initialize Open GL lighting and projection matrix
@@ -110,11 +112,10 @@ OGLWidget::OGLWidget(QWidget *parent) : QOpenGLWidget(parent)   // constructor
 
 	/// Setup the animation timer to fire every x msec
 	this->animtimer = new QTimer(this);
-	this->animtimer->start(50);
+	this->animtimer->start(25);
 
 	/// Everytime the timer fires, the animation is going one step forward
 	connect(this->animtimer, SIGNAL(timeout()), this, SLOT(stepAnimation()));
-
     animstep = 0;
 }
 
@@ -148,30 +149,56 @@ void OGLWidget::paintGL()       // draw everything, to be called repeatedly
     glClearColor(0.8, 0.8, 1.0, 1.0); // bright blue
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+	/// define color: 1=front, 2=back, 3=both, followed by r, g, and b
+	SetMaterialColor(1, 1.0, 0.2, 0.2); // front color is red
+	SetMaterialColor(2, 0.2, 0.2, 1.0); // back color is blue
+
 	/// draw the scene
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();               // Reset The Current Modelview Matrix
-	glTranslated(-14, 0, -10.0);      // Move 10 units backwards in z, since camera is at origin
-    glScaled(scale, scale, scale);  // scale objects
-	glRotated(alpha, 1, 0, 0);
-	if (doRotation)
-		alpha += 1;					// continuous rotation
 
-	/// define color: 1=front, 2=back, 3=both, followed by r, g, and b
-    SetMaterialColor(1, 1.0, 0.2, 0.2); // front color is red
-    SetMaterialColor(2, 0.2, 0.2, 1.0); // back color is blue
+	/// Catmull Clark Subdivision
+	glPushMatrix();
+	glTranslated(meshTranslation.x(), meshTranslation.y(), meshTranslation.z());
+	glScaled(meshScale, meshScale, meshScale);
+	glRotated(meshAlpha, 0, 1, 1);
 
-	//mesh->DrawMesh(meshDrawSurface, meshDrawWireframe);
+	mesh->DrawMesh(meshDrawSurface, meshDrawWireframe);
+	glPopMatrix();
 
-	//this->surface->Draw(surfaceDrawSurface, surfaceDrawWireframe);
-	//this->surface->DrawControlMesh();
+	/// Bezier Surface
+	glPushMatrix();
+	glTranslated(surfaceTranslation.x(), surfaceTranslation.y(), surfaceTranslation.z());
+	glScaled(surfaceScale, surfaceScale, surfaceScale);
+	glRotated(45, 1, 1, 0);
+	//glRotated(45, 1, 1, 0);
+	glRotated(surfaceAlpha, 1, 0, 0);
+
+	this->surface->Draw(surfaceDrawSurface, surfaceDrawWireframe);
+	this->surface->DrawControlMesh();
+	glPopMatrix();
+
+	/// Bezier Curve and Rotation Object
+	glPushMatrix();
+	glTranslated(curveTranslation.x(), curveTranslation.y(), curveTranslation.z());
+	glScaled(curveScale, curveScale, curveScale);
+	glRotated(90, 0, -1, -1);
+	glRotated(curveAlpha, 1, 0, 0);
 
 	//this->curve->DrawCurve();
 	//this->curve->DrawControlPoints();
 	this->curve->Draw(curveDrawSurface, curveDrawWireframe);
+	glPopMatrix();
 
 	/// make it appear (before this, it's hidden in the rear buffer)
     glFlush();
+
+	if (meshDoRotation)
+		meshAlpha += 1;
+	if (surfaceDoRotation)
+		surfaceAlpha += 1;
+	if (curveDoRotation)
+		curveAlpha += 1;
 }
 
 void OGLWidget::resizeGL(int w, int h) // called when window size is changed
