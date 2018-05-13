@@ -25,7 +25,6 @@ SOURCES += main.cpp\
     quad.cpp \
     mesh.cpp \
     surface.cpp \
-    vectormatrix.cpp \
     matrix.cpp \
     curve.cpp \
     bernsteinpolynomial.cpp
@@ -36,7 +35,6 @@ HEADERS  += mainwindow.h \
     quad.h \
     mesh.h \
     surface.h \
-    vectormatrix.h \
     matrix.h \
     curve.h \
     bernsteinpolynomial.h
