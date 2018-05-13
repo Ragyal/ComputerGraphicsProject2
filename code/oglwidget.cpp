@@ -11,7 +11,7 @@ static bool meshDoRotation = true;
 static double meshAlpha = 90;
 
 static std::string meshFileName = "cube.obj";
-static int meshSudivisions = 6;
+static int meshSudivisions = 4;
 static bool meshDrawSurface = true;
 static bool meshDrawWireframe = false;
 
@@ -30,10 +30,10 @@ static bool surfaceDrawWireframe = false;
 static QVector3D curveTranslation = QVector3D(9, 7, 0);
 static float curveScale = 2.5f;
 static bool curveDoRotation = true;
-static double curveAlpha = 90;
+static double curveAlpha = 0;
 
 static std::string curveFileName = "exampleCurve.txt";
-static int curveResolution = 100;
+static int curveResolution = 20;
 static bool curveDrawSurface = true;
 static bool curveDrawWireframe = false;
 
