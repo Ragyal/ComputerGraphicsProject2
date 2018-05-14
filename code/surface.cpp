@@ -1,3 +1,7 @@
+///////////////////////////////////////////////////////////
+/// Annika Diekmann, Sven Fröhling, Ove von Stackelberg ///
+///////////////////////////////////////////////////////////
+
 #include "surface.h"
 
 #include <QOpenGLFunctions>
@@ -8,7 +12,7 @@
 Surface::Surface(std::string fileName, unsigned int resolution)
 {
 	this->vertices = new std::vector<Vertex*>();
-    this->quads = new std::vector<Quad*>();
+	this->faces = new std::vector<Quad*>();
     this->resolution = resolution;
 
 	if (readFile(fileName)) {
@@ -34,11 +38,11 @@ Surface::~Surface()
 
 	delete this->surface;
 
-    for (unsigned long i = 0; i < this->quads->size(); i++)
+	for (unsigned long i = 0; i < this->faces->size(); i++)
     {
-        delete this->quads->at(i);
+		delete this->faces->at(i);
     }
-    delete this->quads;
+	delete this->faces;
 
 	for (unsigned long i = 0; i < this->vertices->size(); i++)
     {
@@ -47,16 +51,26 @@ Surface::~Surface()
 	delete this->vertices;
 }
 
-void Surface::Print(bool printBezierPoints) const
+void Surface::Print() const
 {
+	std::cout << "Vertices:" << std::endl;
+	for (unsigned long i = 0; i < this->vertices->size(); i++)
+	{
+		std::cout << *this->vertices->at(i) << std::endl;
+	}
 
+	std::cout << std::endl << "Faces:" << std::endl;
+	for (unsigned long i = 0; i < this->faces->size(); i++)
+	{
+		std::cout << *this->faces->at(i) << std::endl << std::endl;
+	}
 }
 
 void Surface::Draw(bool drawSurface, bool drawWireframe) const
 {
-    for (unsigned long i = 0; i < this->quads->size(); i++)
+	for (unsigned long i = 0; i < this->faces->size(); i++)
     {
-        this->quads->at(i)->Draw(drawSurface, drawWireframe);
+		this->faces->at(i)->Draw(drawSurface, drawWireframe);
     }
 }
 
@@ -223,9 +237,9 @@ void Surface::generateQuads()
             c = surface->getAt(i+1, j+1);
             d = surface->getAt(i, j+1);
 
-            index = this->quads->size();
-			q = new Quad(this->vertices, this->quads, a, b, c, d, index);
-            this->quads->push_back(q);
+			index = this->faces->size();
+			q = new Quad(this->vertices, this->faces, a, b, c, d, index);
+			this->faces->push_back(q);
         }
     }
 }

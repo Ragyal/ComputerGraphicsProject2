@@ -1,3 +1,7 @@
+///////////////////////////////////////////////////////////
+/// Annika Diekmann, Sven Fröhling, Ove von Stackelberg ///
+///////////////////////////////////////////////////////////
+
 #include "curve.h"
 
 #include <QOpenGLFunctions>
@@ -11,7 +15,7 @@
 Curve::Curve(std::string fileName, unsigned int resolution)
 {
 	this->vertices = new std::vector<Vertex*>();
-	this->quads = new std::vector<Quad*>();
+	this->faces = new std::vector<Quad*>();
 	this->resolution = resolution;
 
     if (readFile(fileName)) {
@@ -25,6 +29,34 @@ Curve::~Curve()
 {
     delete this->bezierPoints;
 	delete this->bersteinSamples;
+	delete this->curve;
+
+	for (unsigned long i = 0; i < this->faces->size(); i++)
+	{
+		delete this->faces->at(i);
+	}
+	delete this->faces;
+
+	for (unsigned long i = 0; i < this->vertices->size(); i++)
+	{
+		delete this->vertices->at(i);
+	}
+	delete this->vertices;
+}
+
+void Curve::Print() const
+{
+	std::cout << "Vertices:" << std::endl;
+	for (unsigned long i = 0; i < this->vertices->size(); i++)
+	{
+		std::cout << *this->vertices->at(i) << std::endl;
+	}
+
+	std::cout << std::endl << "Faces:" << std::endl;
+	for (unsigned long i = 0; i < this->faces->size(); i++)
+	{
+		std::cout << *this->faces->at(i) << std::endl << std::endl;
+	}
 }
 
 void Curve::DrawControlPoints() const
@@ -71,9 +103,9 @@ void Curve::DrawCurve() const
 
 void Curve::Draw(bool drawSurface, bool drawWireframe) const
 {
-	for (unsigned long i = 0; i < this->quads->size(); i++)
+	for (unsigned long i = 0; i < this->faces->size(); i++)
 	{
-		this->quads->at(i)->Draw(drawSurface, drawWireframe);
+		this->faces->at(i)->Draw(drawSurface, drawWireframe);
 	}
 }
 
@@ -214,9 +246,9 @@ void Curve::calcRotationSurface()
 				c = verticesB->at(r+1);
 			}
 
-			index = this->quads->size();
-			q = new Quad(this->vertices, this->quads, a, b, c, d, index);
-			this->quads->push_back(q);
+			index = this->faces->size();
+			q = new Quad(this->vertices, this->faces, a, b, c, d, index);
+			this->faces->push_back(q);
 		}
 
 		delete verticesA;

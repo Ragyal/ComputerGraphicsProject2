@@ -1,3 +1,7 @@
+///////////////////////////////////////////////////////////
+/// Annika Diekmann, Sven Fröhling, Ove von Stackelberg ///
+///////////////////////////////////////////////////////////
+
 #ifndef SURFACE_H
 #define SURFACE_H
 
@@ -16,13 +20,13 @@ public:
 	Surface(std::string fileName, unsigned int resolution = 20);
     ~Surface();
 
-	void Print(bool printBezierPoints = true) const;
+	void Print() const;
 	void Draw(bool drawSurface = true, bool drawWireframe = false) const;
 	void DrawControlMesh() const;
 
 private:
 	std::vector<Vertex*>* vertices;
-    std::vector<Quad*>* quads;
+	std::vector<Quad*>* faces;
 
 	unsigned int degreeM;
 	unsigned int degreeN;

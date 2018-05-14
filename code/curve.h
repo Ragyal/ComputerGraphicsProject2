@@ -1,3 +1,7 @@
+///////////////////////////////////////////////////////////
+/// Annika Diekmann, Sven Fröhling, Ove von Stackelberg ///
+///////////////////////////////////////////////////////////
+
 #ifndef CURVE_H
 #define CURVE_H
 
@@ -15,18 +19,19 @@ public:
     Curve(std::string fileName, unsigned int resolution);
     ~Curve();
 
+	void Print() const;
 	void DrawControlPoints() const;
 	void DrawCurve() const;
 	void Draw(bool drawSurface = true, bool drawWireframe = false) const;
 
 private:
 	std::vector<Vertex*>* vertices;
-	std::vector<Quad*>* quads;
+	std::vector<Quad*>* faces;
 
 	unsigned int degree;
     unsigned int resolution;
-    std::vector<unsigned int>* bezierPoints;
 
+    std::vector<unsigned int>* bezierPoints;
 	BernsteinPolynomial* bersteinSamples;
 
 	std::vector<unsigned int>* curve;

@@ -1,3 +1,7 @@
+///////////////////////////////////////////////////////////
+/// Annika Diekmann, Sven Fröhling, Ove von Stackelberg ///
+///////////////////////////////////////////////////////////
+
 #include "oglwidget.h"
 
 static std::string path = "D:/Projekte/Qt/ComputerGraphicsProject2/data/";			// Ove Windows
